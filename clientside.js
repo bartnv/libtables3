@@ -437,6 +437,7 @@ function refreshTable(table, key, force = false) {
   }
   tables[key].start = Date.now();
   tables[key].doingajax = true;
+  table.find('.lt-loading').show();
   $.ajax({
     dataType: "json",
     url: ajaxUrl,
@@ -445,6 +446,7 @@ function refreshTable(table, key, force = false) {
     context: table,
     success: function(data) {
       let options = tables[key].data.options;
+      this.find('.lt-loading').hide();
       if (data.error) appError(data.error, this);
       else if (data.nochange); // No action
       else {
@@ -890,6 +892,7 @@ function renderTitle(data) {
   //   str += '<span class="lt-fullscreen-button ' + (data.options.popout.icon_class?data.options.popout.icon_class:"") + '" ';
   //   str += 'onclick="toggleTableFullscreen($(this).closest(\'table\'));"></span>';
   // }
+  if (data.options.loadinghtml) str += '<span class="lt-loading" style="display: none;">' + data.options.loadinghtml + '</span>';
   if (data.options.tableaction && data.options.tableaction.text) {
     let action = data.options.tableaction;
     let disp;
