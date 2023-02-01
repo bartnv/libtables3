@@ -234,6 +234,7 @@ function doAction(button, addparam) {
         let action = Array.isArray(this.options.rowaction)?this.options.rowaction[actionid]:this.options.rowaction;
         if (data.error) appError(data.error, table);
         if (data.usererror) userError(data.usererror);
+        if (action.runjs) eval(action.runjs);
         if (data.output) {
           if (action.output == 'block') {
             // $('#block_' + this.block).replaceWith(data.output);
