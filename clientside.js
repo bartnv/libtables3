@@ -1913,7 +1913,7 @@ function doEditSelect(cell) {
   cell.addClass('lt-editing');
   let key = cell.closest('table').attr('id');
   let content = cell.text(), c, query;
-  if (tables[key].data.options.format) c = cell.closest('tbody').find('.lt-data').index(cell)+1;
+  if (tables[key].data.options.format) c = colVisualToReal(tables[key].data, cell.closest('tbody').find('.lt-data').index(cell)+1);
   else c = colVisualToReal(tables[key].data, cell.parent().children('.lt-data').index(cell)+1);
   let edit = tables[key].data.options.edit[c];
 
@@ -2027,8 +2027,8 @@ function checkEdit(cell, edit, oldvalue) {
   let newvalue = edit.val();
   let key = cell.closest('table').attr('id');
   let options = tables[key].data.options, c;
-  if (options.format) c = cell.closest('tbody').find('.lt-data').index(cell)+1;
-  else c = cell.parent().children('.lt-data').index(cell)+1;
+  if (options.format) c = colVisualToReal(tables[key].data, cell.closest('tbody').find('.lt-data').index(cell)+1);
+  else c = colVisualToReal(tables[key].data, cell.parent().children('.lt-data').index(cell)+1);
   if (options.edit[c].type == 'checkbox') {
     if (edit.prop('checked')) {
       if (options.edit[c].truevalue) newvalue = options.edit[c].truevalue;
