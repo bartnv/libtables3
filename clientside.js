@@ -870,7 +870,6 @@ function renderTableFormatBody(tbody, data, offset) {
         appcount++;
       }
       else if ((fmt[r][c] == 'R') && (actions[actcount])) {
-        console.log(actions[actcount]);
         for (rowspan = 1; fmt[r+rowspan] && fmt[r+rowspan][c] == '|'; rowspan++);
         for (colspan = 1; fmt[r][c+colspan] == '-'; colspan++);
         actions[actcount].colSpan = colspan;
