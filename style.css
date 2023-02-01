@@ -30,6 +30,11 @@ TD.lt-edit:not(.lt-editing):hover::after {
 TD.lt-notsaved { background-color: #ffa0a0 }
 .lt-required { background-color: rgb(255,220,220); }
 DIV.lt-div { }
+DIV.lt-search-form { display: grid; grid-template-columns: repeat(3, auto); justify-items: start; align-items: center; grid-column-gap: 0.5rem; grid-row-gap: 0.5rem; }
+DIV.lt-search-form > INPUT { justify-self: stretch; }
+SELECT.lt-search-form-select { width: 100%; }
+DIV.lt-search-form-buttons { grid-column: 1 / 4; }
+DIV.lt-search-form-buttons > *:not(:first-child):not(select) { margin-left: 10px; }
 DIV.lt-buttongrid { float: right; width: 480px; }
 DIV.lt-buttongrid-tabbar { padding-top: 15px; padding-bottom: 9px; padding-right: 10px; }
 DIV.lt-buttongrid-panels { position: relative; }

@@ -79,17 +79,23 @@ function appError(msg, context) {
 $(document).ready(function() {
   load($(document), true);
   window.setInterval(refreshAll, 30000);
+
+  $('BODY').on('keyup', '.lt-search', function(evt) {
+    if (evt.key == 'Enter') $(this).find('.lt-search-form-submit').click();
+  })
 });
 
 function load(el, visible) {
-  let tables, controls;
+  let tables, controls, searches;
   if (visible) {
     tables = el.find('.lt-div:visible');
     controls = el.find('.lt-control:visible');
+    searches = el.find('.lt-search:visible');
   }
   else {
     tables = el.find('.lt-div');
     controls = el.find('.lt-control');
+    searches = el.find('.lt-search');
   }
 
   tables.each(function() {
@@ -99,6 +105,10 @@ function load(el, visible) {
   controls.each(function() {
     let attr = $(this).data();
     loadControl($(this), attr);
+  });
+  searches.each(function() {
+    let attr = $(this).data();
+    loadSearch($(this), attr);
   });
   el.find('.lt-div-text').each(function() {
     let attr = $(this).data();
@@ -343,6 +353,87 @@ function doAction(button, addparam) {
 //   div.html("Loading...");
 //   loadTable(div, attr);
 // }
+
+function loadSearch(div, attr) {
+  let options = JSON.parse(atob(attr.options));
+  let form = $('<div class="lt-search-form"/>');
+  for (let field of options.fields) {
+    if (!field.name) {
+      console.log("Search field in " + attr.source + " has no name defined");
+      continue;
+    }
+    let label = $('<label for="' + field.name + '">' + field.label + '</label>');
+    let item;
+    if (field.options) {
+      item = $('<select class="lt-search-form-select" name="' + field.name + '" tabindex="1"/>');
+      for (let option of field.options) {
+        item.append($('<option value="' + option[1] + '">' + option[0] + '</option>'));
+      }
+    }
+    else item = $('<input type="text" name="' + field.name + '" tabindex="1">');
+    if (field.prefill) item.filter('input').val(field.prefill);
+    if (field.placeholder) item.filter('input').prop('placeholder', field.placeholder);
+    let controls = $('<div class="lt-search-form-controls"/>');
+    if (typeof field.fullmatch === 'string') {
+      controls.append('<input type="checkbox" tabindex="2" class="lt-search-form-fullmatch"' + (field.fullmatch=='checked'?' checked':'') + '>'
+        + (options.controls?.fullmatch ?? 'Full match'));
+    }
+    form.append(label, item, controls);
+  }
+  let buttons = $('<div class="lt-search-form-buttons"/>');
+  buttons.append('<input type="button" class="lt-search-form-submit" tabindex="1" value="' + (options.controls?.submit ?? 'Search') + '">');
+  buttons.find('.lt-search-form-submit').on('click', doSearch);
+  if (options.controls?.clear) {
+    buttons.append('<input type="button" class="lt-search-form-clear" tabindex="1" value="' + options.controls.clear + '">');
+    buttons.find('.lt-search-form-clear').on('click', doSearchClear);
+  }
+  if (options.controls?.limit) {
+    let label = $('<label for="lt-search-limit">' + (options.controls.limit.label ?? 'Max. results') + ' </label>');
+    let input = $('<select class="lt-search-limit"/>');
+    for (let option of options.controls.limit.options) {
+      input.append('<option value="' + option + '">' + option + '</option>');
+    }
+    buttons.append(label, input);
+  }
+  form.append(buttons);
+  div.append(form);
+}
+
+function doSearch() {
+  let form = $(this).closest('.lt-search-form');
+  let options = JSON.parse(atob(form.parent().data().options));
+  let data = { mode: 'search', src: form.parent().data().source, fields: [] };
+  for (let field of options.fields) {
+    let input = form.find('input[name=' + field.name + ']');
+    if (!input.length) input = form.find('select[name=' + field.name + ']');
+    if (!input.val().length) continue;
+    let content = { name: field.name, value: input.val() };
+    let controls = input.next();
+    if (typeof field.fullmatch === 'string') content.fullmatch = controls.find('.lt-search-form-fullmatch').prop('checked');
+    data.fields.push(content);
+  }
+  if (options.controls?.limit) {
+    let limit = form.find('.lt-search-limit').val();
+    if (limit) data.limit = limit;
+  }
+  $.ajax({
+    method: 'post',
+    dataType: "json",
+    url: ajaxUrl,
+    data: data,
+    success: function(data) {
+      if (data.error) { appError(data.error, this); }
+      else {
+        loadOrRefreshCollection($('#' + options.target));
+      }
+    },
+    error: function(xhr, status) { }
+  });
+}
+function doSearchClear() {
+  let form = $(this).closest('.lt-search-form');
+  form.find('INPUT[type=text],SELECT').not('.lt-search-limit').val('');
+}
 
 function loadControl(div, attr) {
   let options = JSON.parse(atob(attr.options));

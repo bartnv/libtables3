@@ -348,13 +348,38 @@ switch ($mode) {
     if (empty($_GET['crc'])) fatalerr('No crc passed in mode refreshtable');
 
     $table = lt_find_table($_GET['src']);
-    $ret = lt_query($table['query']);
-    if (isset($ret['error'])) fatalerr('Query for table ' . $table['title'] . ' in block ' . $src[0] . ' returned error: ' . $data['error']);
+    if (strpos($table['query'], 'WHERE FALSE') && !empty($_SESSION['search_' . $table['block'] . '_' . $table['tag'] . '_where'])) {
+      if (empty($_SESSION['search_' . $table['block'] . '_limit'])) $limit = '';
+      else $limit = ' LIMIT ' . $_SESSION['search_' . $table['block'] . '_limit'];
+      $ret = lt_query(
+        str_replace(
+          'WHERE FALSE',
+          'WHERE ' . $_SESSION['search_' . $table['block'] . '_' . $table['tag'] . '_where'], $table['query']
+        ) . $limit,
+        0,
+        $_SESSION['search_' . $table['block'] . '_' . $table['tag'] . '_values']
+      );
+      if ($limit && !empty($ret['rows']) && count($ret['rows']) == $_SESSION['search_' . $table['block'] . '_limit']) {
+        $ret['total'] = lt_query_single("SELECT count(*) FROM (" .
+          str_replace(
+            'WHERE FALSE',
+            'WHERE ' . $_SESSION['search_' . $table['block'] . '_' . $table['tag'] . '_where'], $table['query']
+          ) .
+        ") as sub", $_SESSION['search_' . $table['block'] . '_' . $table['tag'] . '_values']);
+      }
+    }
+    else $ret = lt_query($table['query']);
+    if (isset($ret['error'])) fatalerr('Query for table ' . $_GET['src'] . ' returned error: ' . $ret['error']);
     if (empty($lt_settings['checksum']) || ($lt_settings['checksum'] == 'php')) $crc = crc32(json_encode($ret['rows'], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_PARTIAL_OUTPUT_ON_ERROR));
     elseif ($lt_settings['checksum'] == 'psql') $crc = lt_query_single("SELECT md5(string_agg(q::text, '')) FROM (" . $table['query'] . ") AS q)");
     if ($crc == $_GET['crc']) $ret = [ 'nochange' => 1 ]; // Overwrite output from lt_query since we don't need it
     else $ret['crc'] = $crc;
-
+    if (!empty($table['options']['selectany'])) {
+      $sa = $table['options']['selectany'];
+      if (!empty($sa['id'])) $tmp = lt_query('SELECT ' . $sa['fields'][1] . ' FROM ' . $sa['linktable'] . ' WHERE ' . $sa['fields'][0] . ' = ' . $sa['id']);
+      else $tmp = lt_query('SELECT ' . $sa['fields'][1] . ' FROM ' . $sa['linktable'] . ' WHERE ' . $sa['fields'][0] . ' = ?');
+      $ret['options']['selectany']['links'] = array_column($tmp['rows'], 0);
+    }
     if (!empty($table['options']['tableaction']['sqlcondition'])) $ret['options']['tableaction']['sqlcondition'] = (lt_query_count($table['options']['tableaction']['sqlcondition']) > 0);
     break;
   case 'refreshtext':
@@ -569,9 +594,16 @@ switch ($mode) {
       }
       else $action = $table['options']['rowaction'][intval($_POST['action'])];
       if (empty($_POST['row'])) fatalerr('No row id passed in mode action in block ' . $_POST['src']);
-      if (!is_numeric($_POST['row'])) fatalerr('Invalid row id passed in mode action in block ' . $_POST['src']);
-      $id = intval($_POST['row']);
-      $data = lt_query($table['query'], $id);
+      // if (!is_numeric($_POST['row'])) fatalerr('Invalid row id passed in mode action in block ' . $_POST['src']);
+      // $id = intval($_POST['row']);
+      if (strpos($table['query'], 'WHERE FALSE') && !empty($_SESSION['search_' . $table['block'] . '_' . $table['tag'] . '_where'])) {
+        $data = lt_query(
+          str_replace('WHERE FALSE', 'WHERE ' . $_SESSION['search_' . $table['block'] . '_' . $table['tag'] . '_where'], $table['query']),
+          $_POST['row'],
+          $_SESSION['search_' . $table['block'] . '_' . $table['tag'] . '_values']
+        );
+      }
+      else $data = lt_query($table['query'], $_POST['row']);
       if (empty($data['rows'])) fatalerr('Row with id ' . $_POST['row'] . ' not found in mode action in block ' . $_POST['src']);
       $ret['row'] = $data['rows'][0];
     }
@@ -886,6 +918,39 @@ switch ($mode) {
     }
     $data = lt_query($table['query']);
     $ret = [ 'status' => 'ok', 'crc' => crc32(json_encode($data['rows'], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_PARTIAL_OUTPUT_ON_ERROR)) ];
+    break;
+  case 'search':
+    if (empty($_POST['src']) || !preg_match('/^[a-z0-9_-]+:[a-z0-9_-]+$/', $_POST['src'])) fatalerr('Invalid src in mode search');
+    $search = lt_find_table($_POST['src']);
+    $where = '';
+    $values = [];
+    foreach ($_POST['fields'] as $field) {
+      if (empty($field['name'])) fatalerr('No field name specified in mode search');
+      foreach ($search['options']['fields'] as $config) {
+        if ($config['name'] == $field['name']) { break; }
+        $config = null;
+      }
+      if (!$config) fatalerr('Field "' . $field['name'] . '" not found in config in mode search');
+      if (!empty($where)) $where .= ' AND ';
+      if (isset($config['fullmatch']) && (($config['fullmatch'] === true) || ($field['fullmatch'] === 'true'))) {
+        $where .= $config['column'] . ' = :' . $field['name'];
+        $values[$field['name']] = trim($field['value']);
+      }
+      elseif (isset($config['fts']) && (($config['fts'] === true) || ($field['fts'] === 'true'))) {
+        $where .= $config['column'] . ' @@ websearch_to_tsquery(\'dutch\', :' . $field['name'] . ')';
+        $values[$field['name']] = $field['value'];
+      }
+      else {
+        $where .= $config['column'] . ' ilike :' . $field['name'];
+        $values[$field['name']] = '%' . str_replace([ "'", ' ', '.' ], '%', trim($field['value'])) . '%';
+      }
+    }
+    $_SESSION['search_' . $search['block'] . '_' . $search['options']['target'] . '_where'] = $where;
+    $_SESSION['search_' . $search['block'] . '_' . $search['options']['target'] . '_values'] = $values;
+    if (!empty($_POST['limit']) && is_numeric($_POST['limit'])) {
+      $_SESSION['search_' . $search['block'] . '_limit'] = $_POST['limit'];
+    }
+    $ret = [ 'status' => 'ok', 'where' => $where ];
     break;
   case 'donext':
     if (empty($_POST['src']) || !preg_match('/^[a-z0-9_-]+:[a-z0-9_-]+$/', $_POST['src'])) fatalerr('Invalid src in mode donext');
