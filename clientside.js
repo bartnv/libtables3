@@ -1363,7 +1363,9 @@ function renderTbody(tbody, data) {
 }
 
 function renderRow(options, row) {
-  let html = [ '<tr class="lt-row" data-rowid="'+ row[0]+'">' ];
+  let classes = [ 'lt-row' ];
+  if (options.class?.row) classes.push(replaceHashes(options.class.row, row));
+  let html = [ '<tr class="' + classes.join(' ') + '" data-rowid="'+ row[0] + '">' ];
   if (options.selectone) {
     let trigger;
     if (options.selectone.trigger) trigger = ' data-trigger="' + options.selectone.trigger + '"';
@@ -1412,7 +1414,7 @@ function renderCell(options, row, c, element) {
   if (!element) element = 'td';
   let input, onclick;
   let classes = [ "lt-cell", "lt-data" ];
-  if (options.class && options.class[c]) classes.push(options.class[c]);
+  if (options.class && options.class[c]) classes.push(replaceHashes(options.class[c], row));
   if (options.edit && options.edit[c]) {
     classes.push('lt-edit');
     if (typeof(options.edit[c]) == 'string') onclick = ' onclick="doEdit(this)"';
