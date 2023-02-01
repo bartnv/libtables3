@@ -38,25 +38,29 @@ let transl = {};
 let lang = 0;
 let $ = jQuery;
 
-$.ajax({
-  method: 'get',
-  url: ajaxUrl,
-  dataType: 'json',
-  data: { mode: 'transl' },
-  success: function(data) {
-    if (data.error) alert(data.error);
-    else if (data.strings) {
-      for (let item of data.strings) {
-        transl[item[0]] = item;
-      }
-    }
-  }
-});
-
 function tr(str) {
-  if (lang == 0) return str;
-  if (transl.hasOwnProperty(str) && (transl[str][lang] !== null)) return transl[str][lang];
-  return str;
+  switch (navigator.language) {
+    case "nl":
+    case "nl-NL":
+      switch (str) {
+        case "Total": return "Totaal";
+        case "Page": return "Pagina";
+        case "Row": return "Document";
+        case "of": return "van";
+        case "Error": return "Fout";
+        case "Insert": return "Toevoegen";
+        case "Export as": return "Exporteren als";
+        case "Row has errors and cannot be inserted": return "Rij heeft fouten en kan niet worden toegevoegd";
+        case "Select": return "Selecteren";
+        case "rows for export": return "rijen om te exporteren";
+        case "Next": return "Volgende";
+        case "Previous": return "Vorige";
+        case "Field": return "Veld";
+        case "may not be empty": return "mag niet leeg zijn";
+        default: return str;
+      }
+    default: return str;
+  }
 }
 
 function escape(val) {
