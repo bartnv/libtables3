@@ -457,6 +457,16 @@ function refreshTable(table, key, force = false) {
           loadTable(this.parent(), this.parent().data());
           return;
         }
+        if (tables[key].data.options.showdiff === false) {
+          tables[key].data.rows = data.rows;
+          tables[key].data.crc = data.crc;
+          tables[key].data.total = data.total;
+          tables[key].data.querytime = data.querytime;
+          if (data.options?.selectany?.links) tables[key].data.options.selectany.links = data.options.selectany.links;
+          tables[key].doingajax = false;
+          renderTable(this.empty(), tables[key].data);
+          return;
+        }
 
         let tbody = this.find('tbody');
         if (!tbody.length) {
