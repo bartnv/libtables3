@@ -801,6 +801,7 @@ function renderTableFormatBody(tbody, data, offset) {
           break;
         }
         while (data.options.mouseover && data.options.mouseover[headcount]) headcount++;
+        while (data.options.hidecolumn && data.options.hidecolumn[headcount]) headcount++;
         for (rowspan = 1; fmt[r+rowspan] && fmt[r+rowspan][c] == '|'; rowspan++);
         for (colspan = 1; fmt[r][c+colspan] == '-'; colspan++);
         let tdstr = '<td class="lt-head"' + (colspan > 1?' colspan="' + colspan + '"':'') + (rowspan > 1?' rowspan="' + rowspan + '"':'') + '>';
@@ -815,6 +816,7 @@ function renderTableFormatBody(tbody, data, offset) {
           break;
         }
         while (data.options.mouseover && data.options.mouseover[colcount]) colcount++;
+        while (data.options.hidecolumn && data.options.hidecolumn[colcount]) colcount++;
         for (rowspan = 1; fmt[r+rowspan] && fmt[r+rowspan][c] == '|'; rowspan++);
         for (colspan = 1; fmt[r][c+colspan] == '-'; colspan++);
         let cell = $(renderCell(data.options, data.rows[offset], colcount));
