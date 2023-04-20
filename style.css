@@ -17,6 +17,7 @@ TD.lt-short { text-align: right; }
 TD.lt-short INPUT { width: 50px; }
 TD.lt-dist { text-align: right; }
 TD.lt-dist::after { content: " km"; }
+TR.lt-row-group > TD { font-weight: bold; }
 
 TD.lt-sort { position: relative; }
 TD.lt-sort::after { position: absolute; top: 0; right: 0; bottom: 0; width: 1rem; padding: 0.4rem 0.3rem 0.2rem 0.2rem; background-color: white; box-shadow: -0.3rem 0 0.3rem 0 white; cursor: pointer; }

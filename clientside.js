@@ -1348,17 +1348,29 @@ function loadOptions(input, data, c) {
 }
 function renderOptions(select, list, required) {
   select.empty();
-  if (!required) select.append('<option value=""></option>');
+  let str = '';
+  let group = '';
+  let name;
+  if (!required) str += '<option value=""></option>';
   for (let i = 0; list.items[i]; i++) {
     let selected;
     if (select.default && (select.default == 'first') && (i == 0)) selected = ' selected';
     else if (select.default && (select.default == list.items[i][1])) selected = ' selected';
     else if (select.defaultid && (select.defaultid == list.items[i][0])) selected = ' selected';
     else selected = '';
-    let name = list.items[i][1];
-    if (list.items[i][2]) name += ' (' + list.items[i][2] + ')';
-    select.append('<option value="' + list.items[i][0] + '"' + selected + '>' + name + '</option>');
+    if (list.items[i][2]) {
+      name = list.items[i][2];
+      if (group != list.items[i][1]) {
+        if (group.length) str += '</optgroup>';
+        str += '<optgroup label="' + list.items[i][1] + '">';
+        group = list.items[i][1];
+      }
+    }
+    else name = list.items[i][1];
+    str += '<option value="' + list.items[i][0] + '"' + selected + '>' + name + '</option>';
   }
+  if (group.length) str += '</optgroup>';
+  select.append(str);
   if (!select.default && !select.defaultid) select.prop('selectedIndex', -1); // This selects nothing, rather than the first option
 }
 
