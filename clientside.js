@@ -371,6 +371,8 @@ function loadSearch(div, attr) {
       for (let option of field.options) {
         item.append($('<option value="' + option[1] + '">' + option[0] + '</option>'));
       }
+      if (field.multiple) item.prop('multiple', true);
+      item.val(null);
     }
     else item = $('<input type="text" name="' + field.name + '" tabindex="1">');
     if (field.prefill) item.filter('input').val(field.prefill);

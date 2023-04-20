@@ -934,7 +934,11 @@ switch ($mode) {
       }
       if (!$config) fatalerr('Field "' . $field['name'] . '" not found in config in mode search');
       if (!empty($where)) $where .= ' AND ';
-      if (isset($config['fullmatch']) && (($config['fullmatch'] === true) || ($field['fullmatch'] === 'true'))) {
+      if (isset($config['multiple'])) {
+        $where .= $config['column'] . ' = ANY(:' . $field['name'] . ')';
+        $values[$field['name']] = '{' . implode(',', $field['value']) . '}';
+      }
+      elseif (isset($config['fullmatch']) && (($config['fullmatch'] === true) || ($field['fullmatch'] === 'true'))) {
         $where .= $config['column'] . ' = :' . $field['name'];
         $values[$field['name']] = trim($field['value']);
       }
