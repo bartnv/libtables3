@@ -359,6 +359,7 @@ function doAction(button, addparam) {
 function loadSearch(div, attr) {
   let options = JSON.parse(atob(attr.options));
   let form = $('<div class="lt-search-form"/>');
+  let state = JSON.parse(sessionStorage.getItem('lt_search:' + attr.source) ?? '{}');
   for (let field of options.fields) {
     if (!field.name) {
       console.log("Search field in " + attr.source + " has no name defined");
@@ -375,10 +376,12 @@ function loadSearch(div, attr) {
       item.val(null);
     }
     else item = $('<input type="text" name="' + field.name + '" tabindex="1">');
-    if (field.prefill) item.filter('input').val(field.prefill);
+    if (state?.fields?.find((f) => f.name == field.name)) item.filter('input,select').val(state.fields.find((f) => f.name == field.name).value);
+    else if (field.prefill) item.filter('input').val(field.prefill);
     if (field.placeholder) item.filter('input').prop('placeholder', field.placeholder);
     let controls = $('<div class="lt-search-form-controls"/>');
     if (typeof field.fullmatch === 'string') {
+      if (state?.fields?.find((f) => f.name == field.name)) field.fullmatch = (state.fields.find((f) => f.name == field.name).fullmatch?'checked':'unchecked');
       controls.append('<input type="checkbox" tabindex="2" class="lt-search-form-fullmatch"' + (field.fullmatch=='checked'?' checked':'') + '>'
         + (options.controls?.fullmatch ?? 'Full match'));
     }
@@ -397,6 +400,7 @@ function loadSearch(div, attr) {
     for (let option of options.controls.limit.options) {
       input.append('<option value="' + option + '">' + option + '</option>');
     }
+    if (state?.limit) input.val(state.limit);
     buttons.append(label, input);
   }
   form.append(buttons);
@@ -410,16 +414,22 @@ function doSearch() {
   for (let field of options.fields) {
     let input = form.find('input[name=' + field.name + ']');
     if (!input.length) input = form.find('select[name=' + field.name + ']');
-    if (!input.val().length) continue;
-    let content = { name: field.name, value: input.val() };
+    let val = input.val();
+    if (!val || !val.length) continue;
+    let content = { name: field.name, value: val };
     let controls = input.next();
     if (typeof field.fullmatch === 'string') content.fullmatch = controls.find('.lt-search-form-fullmatch').prop('checked');
     data.fields.push(content);
   }
+  let state = { fields: data.fields };
   if (options.controls?.limit) {
     let limit = form.find('.lt-search-limit').val();
-    if (limit) data.limit = limit;
+    if (limit) {
+      data.limit = limit;
+      state.limit = limit;
+    }
   }
+  sessionStorage.setItem('lt_search:' + form.parent().data().source, JSON.stringify(state));
   $.ajax({
     method: 'post',
     dataType: "json",
@@ -436,7 +446,8 @@ function doSearch() {
 }
 function doSearchClear() {
   let form = $(this).closest('.lt-search-form');
-  form.find('INPUT[type=text],SELECT').not('.lt-search-limit').val('');
+  form.find('INPUT[type=text],SELECT').not('.lt-search-limit').val('').trigger('change');
+  sessionStorage.removeItem('lt_search:' + form.parent().data().source);
 }
 
 function loadControl(div, attr) {
