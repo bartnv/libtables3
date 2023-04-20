@@ -1,6 +1,6 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Libtables3: framework for building web-applications on relational databases *
- * Version 3.0.0-beta / Copyright (C) 2020  Bart Noordervliet, MMVI            *
+ * Version 3.0.0 / Copyright (C) 2023  Bart Noordervliet, MMVI                 *
  *                                                                             *
  * This program is free software: you can redistribute it and/or modify        *
  * it under the terms of the GNU Affero General Public License as              *
