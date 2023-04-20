@@ -1506,7 +1506,7 @@ function renderTbody(tbody, data) {
     }
   }
   tbody[0].innerHTML = rows.join('');
-  tbody.width(); // Force a DOM reflow to fix an IE9-11 bug https://stackoverflow.com/a/21032333
+  // tbody.width(); // Force a DOM reflow to fix an IE9-11 bug https://stackoverflow.com/a/21032333
   return rowcount;
 }
 
