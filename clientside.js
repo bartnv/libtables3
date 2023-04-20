@@ -585,6 +585,11 @@ function refreshTable(table, key, force = false) {
         updateTable(tbody, tables[key].data, data.rows);
         tables[key].data.rows = data.rows;
         tables[key].data.crc = data.crc;
+        if (options.rowcount) {
+          let text = data.rows.length.toString();
+          if (data.total) text += ' ' + tr('of') + ' ' + data.total;
+          this.find('.lt-title > .lt-rowcount').text(text);
+        }
         if (options.sum) updateSums(this.find('tfoot'), tables[key].data);
         if (options.callbacks && options.callbacks.change) window.setTimeout(options.callbacks.change.replace('#src', this.parent().data('source')), 0);
       }
@@ -721,7 +726,7 @@ function renderTable(table, data, sub) {
 //   table.addClass('lt-insert');
 //   for (id in data.options.insert) {
 //     if (!$.isNumeric(id)) continue;
-//     let input = renderField(data.options.insert[id], data, id);
+//     let input = renderField(data.options.insert[id], table, data, id);
 //     let name;
 //     if (data.options.insert[id].name !== undefined) name = data.options.insert[id].name;
 //     else name = input.attr('name').split('.')[1];
@@ -938,7 +943,7 @@ function renderTableFormatBody(tbody, data, offset) {
         for (rowspan = 1; fmt[r+rowspan] && fmt[r+rowspan][c] == '|'; rowspan++);
         for (colspan = 1; fmt[r][c+colspan] == '-'; colspan++);
         let td = $('<td class="lt-cell"' + (colspan > 1?' colspan="' + colspan + '"':'') + (rowspan > 1?' rowspan="' + rowspan + '"':'') + '/>');
-        let input = renderField(insert, data, colid);
+        let input = renderField(insert, table, data, colid);
         if (input.prop('required')) td.addClass('lt-input-required');
         td.append(input);
         row.append(td);
@@ -987,6 +992,11 @@ function renderTitle(data) {
   //   str += '<span class="lt-fullscreen-button ' + (data.options.popout.icon_class?data.options.popout.icon_class:"") + '" ';
   //   str += 'onclick="toggleTableFullscreen($(this).closest(\'table\'));"></span>';
   // }
+  if (data.options.rowcount) {
+    str += ' (<span class="lt-rowcount">' + data.rows.length;
+    if (data.total) str += ' ' + tr('of') + ' ' + data.total;
+    str += '</span>)';
+  }
   if (data.options.loadinghtml) str += '<span class="lt-loading" style="display: none;">' + data.options.loadinghtml + '</span>';
   if (data.options.tableaction && data.options.tableaction.text) {
     let action = data.options.tableaction;
@@ -1129,7 +1139,7 @@ function renderTableGrid(table, data, sub) {
   }
 
   if (data.options.insert && (typeof(data.options.insert) == 'object')) {
-    tfoot.append(renderInsert(data));
+    tfoot.append(renderInsert(table, data));
   }
 
   if (data.options.export) {
@@ -1198,7 +1208,7 @@ function renderInsert(data) {
     let classes = [ 'lt-cell' ];
     if (data.options.class && data.options.class[c]) classes.push(data.options.class[c]);
     cell.addClass(classes.join(' '));
-    let input = renderField(fields[c], data, c);
+    let input = renderField(fields[c], table, data, c);
     if (input.prop('required')) cell.addClass('lt-input-required');
     cell.append(input);
     if (insert) cell.append(insert);
@@ -1225,7 +1235,7 @@ function renderInsertButton(fields, colspan, rowspan) {
   return str;
 }
 
-function renderField(field, data, c) {
+function renderField(field, table, data, c) {
   let input;
   if (field.type == 'checkbox') input = $('<input type="checkbox" class="lt-insert-input" name="' + field.target + '">');
   else if (field.type == 'date') input = $('<input type="date" class="lt-insert-input" name="' + field.target + '" value="' + new Date().toISOString().slice(0, 10) + '">');
