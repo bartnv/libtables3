@@ -378,7 +378,7 @@ switch ($mode) {
       $sa = $table['options']['selectany'];
       if (!empty($sa['id'])) $tmp = lt_query('SELECT ' . $sa['fields'][1] . ' FROM ' . $sa['linktable'] . ' WHERE ' . $sa['fields'][0] . ' = ' . $sa['id']);
       else $tmp = lt_query('SELECT ' . $sa['fields'][1] . ' FROM ' . $sa['linktable'] . ' WHERE ' . $sa['fields'][0] . ' = ?');
-      $ret['options']['selectany']['links'] = array_column($tmp['rows'], 0);
+      $ret['options']['selectany']['links'] = array_column($tmp['rows'] ?? [], 0);
     }
     if (!empty($table['options']['tableaction']['sqlcondition'])) $ret['options']['tableaction']['sqlcondition'] = (lt_query_count($table['options']['tableaction']['sqlcondition']) > 0);
     break;

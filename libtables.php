@@ -297,7 +297,7 @@ function prepare_options($options) {
     $sa = $options['selectany'];
     if (!empty($sa['id'])) $tmp = lt_query('SELECT ' . $sa['fields'][1] . ' FROM ' . $sa['linktable'] . ' WHERE ' . $sa['fields'][0] . ' = ' . $sa['id']);
     else $tmp = lt_query('SELECT ' . $sa['fields'][1] . ' FROM ' . $sa['linktable'] . ' WHERE ' . $sa['fields'][0] . ' = ?');
-    $options['selectany']['links'] = array_column($tmp['rows'], 0);
+    $options['selectany']['links'] = array_column($tmp['rows'] ?? [], 0);
   }
 
   return $options;
