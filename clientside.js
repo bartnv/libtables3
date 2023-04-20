@@ -233,7 +233,8 @@ function doAction(button, addparam) {
   else if (button.hasClass('lt-rowaction')) {
     let actionid = button.parent().data('actionid');
     let data = tables[key].data;
-    data.active = button.closest('.lt-row').data('rowid');
+    button.closest('tbody').find('.lt-row-active').removeClass('lt-row-active');
+    data.active = button.closest('.lt-row').addClass('lt-row-active').data('rowid');
     window.activeid = data.active;
     $.ajax({
       method: 'post',
