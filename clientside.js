@@ -1185,9 +1185,11 @@ function renderTableGrid(table, data, sub) {
 
   if (data.active) {
     let row = tbody.find('tr[data-rowid="' + data.active + '"]');
-    row.addClass('lt-row-active');
-    setTimeout(function (row) { row.scrollIntoView({ behavior: 'instant', block: 'center', inline: 'center' }); }, 100, row[0]);
-    setTimeout(function (row) { row.removeClass('lt-row-active'); }, 5000, row);
+    if (row) {
+      row.addClass('lt-row-active');
+      setTimeout(function (row) { row.scrollIntoView({ behavior: 'instant', block: 'center', inline: 'center' }); }, 100, row[0]);
+      setTimeout(function (row) { row.removeClass('lt-row-active'); }, 5000, row);
+    }
   }
 }
 
