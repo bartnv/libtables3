@@ -1084,6 +1084,10 @@ function renderHeaders(data, id) {
     }
     str += '<td class="' + classes.join(' ') + '" onclick="' + onclick + '">' + escape(tr(data.headers[c])) + '</td>';
   }
+  if (data.options.insert || data.options.rowaction) {
+    if (data.options.rowaction?.length) str += '<td class="lt-head" colspan="' + data.options.rowaction.length + '">';
+    else str += '<td class="lt-head">';
+  }
   str += '</tr>';
 
   if (data.options.filter && (typeof data.options.filter != 'function')) {
