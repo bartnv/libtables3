@@ -2182,7 +2182,8 @@ function directEdit(el) {
 function checkEdit(cell, edit, oldvalue) {
   let newvalue = edit.val();
   let key = cell.closest('table').attr('id');
-  let options = tables[key].data.options, c;
+  let c;
+  let options = tables[key].data.options;
   if (options.format) c = colVisualToReal(tables[key].data, cell.closest('tbody').find('.lt-data').index(cell)+1);
   else c = colVisualToReal(tables[key].data, cell.parent().children('.lt-data').index(cell)+1);
   if (options.edit[c].type == 'checkbox') {
