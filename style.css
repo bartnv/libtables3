@@ -1,6 +1,6 @@
 TABLE.lt-table,TD.lt-cell,TD.lt-head { border: solid rgb(230,230,230) 1px; border-collapse: collapse; }
 TD.lt-cell,TD.lt-head,TH.lt-title { padding: 5px; }
-TH.lt-title { font-size: 14px; line-height: 1em; }
+TH.lt-title { font-size: 14px; }
 P.menu { text-align: center; }
 TD.lt-head { font-weight: bold; }
 DIV.lt-subhead { font-weight: normal; font-size: small; }
@@ -16,9 +16,13 @@ TD.lt-short { text-align: right; }
 TD.lt-short INPUT { width: 50px; }
 TD.lt-dist { text-align: right; }
 TD.lt-dist::after { content: " km"; }
-TD.lt-sort::after { float: right; margin-left: 10px; content: url('sort_arrows.png'); cursor: pointer; }
-TD.lt-sorted-asc::after { float: right; margin-left: 10px; content: url('sort_arrows_asc.png'); cursor: pointer; }
-TD.lt-sorted-desc::after { float: right; margin-left: 10px; content: url('sort_arrows_desc.png'); cursor: pointer; }
+
+TD.lt-sort { position: relative; }
+TD.lt-sort::after { position: absolute; top: 0; right: 0; bottom: 0; width: 1rem; padding: 0.4rem 0.3rem 0.2rem 0.2rem; background-color: white; box-shadow: -0.3rem 0 0.3rem 0 white; cursor: pointer; }
+TR:hover TD.lt-sort::after { content: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="m 28.5,85 c -4,0 -7,-3 -7,-8 V 8 c 0,-4 3,-8 7,-8 4,0 7,3 7,8 v 68 c 0,4 -3,8 -7,8 z" fill="lightgrey"/><path d="M 29,100 1.5,72 c -2,-2 -2,-6 0,-8 2,-2 6,-2 8,0 L 29,83 47,65 c 2,-2 6,-2 8,0 2,2 2,6 0,8 z" fill="lightgrey"/><path d="m 70.5,14 c 4,0 7,3 7,8 v 70 c 0,4 -3,8 -7,8 -4,0 -7,-3 -7,-8 V 23 c 0,-4 3,-8 7,-8 z" fill="lightgrey"/><path d="M 70,0 98.5,26 c 2,2 2,6 0,8 -2,2 -6,2 -8,0 L 70,16 51,34 c -2,2 -6,2 -8,0 -2,-2 -2,-6 0,-8 z" fill="lightgrey"/></svg>'); }
+TR.lt-row TD.lt-sorted-asc::after { content: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="m 28.5,85 c -4,0 -7,-3 -7,-8 V 8 c 0,-4 3,-8 7,-8 4,0 7,3 7,8 v 68 c 0,4 -3,8 -7,8 z" fill="lightgrey"/><path d="M 29,100 1.5,72 c -2,-2 -2,-6 0,-8 2,-2 6,-2 8,0 L 29,83 47,65 c 2,-2 6,-2 8,0 2,2 2,6 0,8 z" fill="lightgrey"/><path d="m 70.5,14 c 4,0 7,3 7,8 v 70 c 0,4 -3,8 -7,8 -4,0 -7,-3 -7,-8 V 23 c 0,-4 3,-8 7,-8 z"/><path d="M 70,0 98.5,26 c 2,2 2,6 0,8 -2,2 -6,2 -8,0 L 70,16 51,34 c -2,2 -6,2 -8,0 -2,-2 -2,-6 0,-8 z"/></svg>') }
+TR.lt-row TD.lt-sorted-desc::after { content: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="m 28.5,85 c -4,0 -7,-3 -7,-8 V 8 c 0,-4 3,-8 7,-8 4,0 7,3 7,8 v 68 c 0,4 -3,8 -7,8 z"/><path d="M 29,100 1.5,72 c -2,-2 -2,-6 0,-8 2,-2 6,-2 8,0 L 29,83 47,65 c 2,-2 6,-2 8,0 2,2 2,6 0,8 z"/><path d="m 70.5,14 c 4,0 7,3 7,8 v 70 c 0,4 -3,8 -7,8 -4,0 -7,-3 -7,-8 V 23 c 0,-4 3,-8 7,-8 z" fill="lightgrey"/><path d="M 70,0 98.5,26 c 2,2 2,6 0,8 -2,2 -6,2 -8,0 L 70,16 51,34 c -2,2 -6,2 -8,0 -2,-2 -2,-6 0,-8 z" fill="lightgrey"/></svg>') }
+
 TD.lt-cell DIV.lt-div { margin: 10px 10px; }
 TD.lt-edit { height: 20px; }
 TD.lt-edit:hover { position: relative; }
