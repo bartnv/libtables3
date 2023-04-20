@@ -234,6 +234,7 @@ function doAction(button, addparam) {
     let actionid = button.parent().data('actionid');
     let data = tables[key].data;
     data.active = button.closest('.lt-row').data('rowid');
+    window.activeid = data.active;
     $.ajax({
       method: 'post',
       url: ajaxUrl,
@@ -672,6 +673,7 @@ function goPage(tableId, which) {
     return;
   }
   let rowcount = 1;
+  window.activeid = data.rows[data.options.page-1][0];
   if (data.options.format) renderTableFormat(table.empty(), data);
   else rowcount = renderTbody(table.find('tbody'), data);
   if (data.options.limit) table.find('.lt-pages').html(tr('Page') + ' ' + data.options.page + ' ' + tr('of') + ' ' + Math.ceil(rowcount/data.options.limit));
@@ -831,6 +833,7 @@ function renderTableFormat(table, data, sub) {
   if (data.options.hideheader) headstr = '';
   else headstr = renderTitle(data);
 
+  if (window.activeid) { data.active = window.activeid; data.options.page = null; }
   if (!data.options.page) {
     if (data.active) {
       for (let r = 0; data.rows[r]; r++) {
