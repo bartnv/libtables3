@@ -612,6 +612,13 @@ function refreshTable(table, key, force = false) {
         if (options.tableaction.sqlcondition) this.find('.lt-tableaction').show();
         else this.find('.lt-tableaction').hide();
       }
+      if (options.selectany?.links && data.options.selectany?.links) {
+        this.find('tbody').children().each(function() {
+          let id = Number(this.dataset.rowid);
+          if (data.options.selectany.links.indexOf(id) >= 0) $(this).children().first().find('input').prop('checked', true);
+          else $(this).children().first().find('input').prop('checked', false);
+        });
+      }
       tables[key].doingajax = false;
     }
   });
