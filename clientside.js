@@ -2058,6 +2058,7 @@ function doSelect(el) {
       else {
         this.parent().css('background-color', '');
         if (tables[key].data.options.trigger) loadOrRefreshCollection($('#' + tables[key].data.options.trigger));
+        else if (tables[key].data.options.selectany.trigger) loadOrRefreshCollection($('#' + tables[key].data.options.selectany.trigger));
       }
     }
   });
