@@ -1136,7 +1136,7 @@ function renderTableGrid(table, data, sub) {
   }
   else if (data.options.insert && (typeof(data.options.insert) == 'object')) {
     tfoot = $('<tfoot/>');
-    tfoot.append(renderInsert(data));
+    tfoot.append(renderInsert(table, data));
     table.append(thead, tfoot);
     table.parent().data('crc', data.crc);
     return;
@@ -1191,7 +1191,7 @@ function renderTableGrid(table, data, sub) {
   }
 }
 
-function renderInsert(data) {
+function renderInsert(table, data) {
   let fields;
   if (data.options.insert.include == 'edit') fields = jQuery.extend({}, data.options.edit, data.options.insert);
   else fields = data.options.insert;
@@ -1205,6 +1205,7 @@ function renderInsert(data) {
     if (typeof data.options.appendcell == 'string') colspan++;
     else colspan += data.options.appendcell.length;
   }
+  if (data.options.rowaction) colspan += data.options.rowaction.length;
   if (!data.options.hideheaders) {
     for (let c = 1; ; c++) {
       let str;
