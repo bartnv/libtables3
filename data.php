@@ -596,16 +596,18 @@ switch ($mode) {
       if (empty($_POST['row'])) fatalerr('No row id passed in mode action in block ' . $_POST['src']);
       // if (!is_numeric($_POST['row'])) fatalerr('Invalid row id passed in mode action in block ' . $_POST['src']);
       // $id = intval($_POST['row']);
-      if (strpos($table['query'], 'WHERE FALSE') && !empty($_SESSION['search_' . $table['block'] . '_' . $table['tag'] . '_where'])) {
-        $data = lt_query(
-          str_replace('WHERE FALSE', 'WHERE ' . $_SESSION['search_' . $table['block'] . '_' . $table['tag'] . '_where'], $table['query']),
-          $_POST['row'],
-          $_SESSION['search_' . $table['block'] . '_' . $table['tag'] . '_values']
-        );
+      if (!empty($action['condition'])) {
+        if (strpos($table['query'], 'WHERE FALSE') && !empty($_SESSION['search_' . $table['block'] . '_' . $table['tag'] . '_where'])) {
+          $data = lt_query(
+            str_replace('WHERE FALSE', 'WHERE ' . $_SESSION['search_' . $table['block'] . '_' . $table['tag'] . '_where'], $table['query']),
+            $_POST['row'],
+            $_SESSION['search_' . $table['block'] . '_' . $table['tag'] . '_values']
+          );
+        }
+        else $data = lt_query($table['query'], $_POST['row']);
+        if (empty($data['rows'])) fatalerr('Row with id ' . $_POST['row'] . ' not found in mode action in block ' . $_POST['src']);
+        $ret['row'] = $data['rows'][0];
       }
-      else $data = lt_query($table['query'], $_POST['row']);
-      if (empty($data['rows'])) fatalerr('Row with id ' . $_POST['row'] . ' not found in mode action in block ' . $_POST['src']);
-      $ret['row'] = $data['rows'][0];
     }
     else fatalerr('Invalid type in mode action');
 
