@@ -642,10 +642,11 @@ function sortOnColumn(a, b, index) {
 }
 
 function colVisualToReal(data, idx) {
-  if (!data.options.mouseover && !data.options.hidecolumn && !data.options.selectone && !data.options.selectany && !data.options.showid) return idx;
+  if (!data.options.mouseover && !data.options.hidecolumn && !data.options.selectone && !data.options.selectany && !data.options.showid && !data.options.groupby) return idx;
   if (data.options.showid) idx--;
   if (data.options.selectone) idx--;
   if (data.options.selectany) idx--;
+  if (data.options.groupby) idx++;
   for (let c = 0; c <= data.headers.length; c++) {
     if (data.options.mouseover && data.options.mouseover[c]) idx++;
     else if (data.options.hidecolumn && data.options.hidecolumn[c]) idx++;
@@ -1068,6 +1069,7 @@ function renderHeaders(data, id) {
     if (!c && !data.options.showid) continue;
     if (data.options.mouseover && data.options.mouseover[c]) continue;
     if (data.options.hidecolumn && data.options.hidecolumn[c]) continue;
+    if (data.options.groupby && data.options.groupby == c) continue;
     let onclick = "";
     let classes = [ "lt-head" ];
     if (data.options.sortable) {
@@ -1171,6 +1173,8 @@ function renderTableGrid(table, data, sub) {
       tfoot.append('<tr><td class="lt-foot lt-exports" colspan="' + data.headers.length + '">' + tr('Export as') + ': <a href="#" onclick="exportToPng(this);">' + tr('Image') + '</a></td></tr>');
     }
   }
+
+  if (data.options.groupby) table.addClass('lt-table-grouped');
 
   table.append(thead, tbody, tfoot);
   table.parent().data('crc', data.crc);
@@ -1518,6 +1522,13 @@ function renderRow(options, row) {
   for (let c = options.showid?0:1; c < row.length; c++) { // Loop over each column
     if (options.mouseover && options.mouseover[c]) continue;
     if (options.hidecolumn && options.hidecolumn[c]) continue;
+    if (options.groupby && options.groupby == c) {
+      if (row[c] !== options.currentgroup) {
+        options.currentgroup = row[c];
+        html.unshift('<tr class="lt-row lt-row-group"><td class="lt-cell" colspan="' + row.length + '">' + row[c]);
+      }
+      continue;
+    }
     html.push(renderCell(options, row, c));
   }
   if (options.appendcell) {
